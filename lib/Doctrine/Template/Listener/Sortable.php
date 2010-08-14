@@ -39,10 +39,14 @@ class Doctrine_Template_Listener_Sortable extends Doctrine_Record_Listener
         $this->_options = $options;
     }
     
-    public function postInsert(Doctrine_Event $event)
+    public function preInsert(Doctrine_Event $event)
     {
         $name = $event->getInvoker()->getTable()->getFieldName($this->_options['name']);
-        $event->getInvoker()->$name = $event->getInvoker()->id;
-        $event->getInvoker()->save();
+        $lists = array();
+        foreach($this->_options['manyListsBy'] as $col){
+            $lists[$col] = $event->getInvoker()->$col;
+        }
+        $last = $event->getInvoker()->findLastTableProxy($lists);
+        $event->getInvoker()->$name = $last->$name + 1;
     }
 }
