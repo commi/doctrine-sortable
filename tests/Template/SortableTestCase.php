@@ -363,7 +363,7 @@ class Doctrine_Template_Sortable_TestCase extends Doctrine_UnitTestCase
         $item2_2 = new SortableItem1();
         $item2_2->listId = 2;
         $item2_2->save();
-
+        
         $this->assertTrue($item1_1->position < $item1_2->position);
         $this->assertTrue($item2_1->position < $item2_2->position);
         $item1_2->moveUp();
@@ -384,6 +384,55 @@ class Doctrine_Template_Sortable_TestCase extends Doctrine_UnitTestCase
         $item2_2->refresh();
         $this->assertTrue($item1_1->position < $item1_2->position);
         $this->assertTrue($item2_1->position < $item2_2->position);
+    }
+
+    public function testMoveAfterWithManyLists()
+    {
+        parent::prepareTables();
+        $item1_1 = new SortableItem1();
+        $item1_1->save();
+        $item2_1 = new SortableItem1();
+        $item2_1->listId = 2;
+        $item2_1->save();
+        $item1_2 = new SortableItem1();
+        $item1_2->save();
+        $item2_2 = new SortableItem1();
+        $item2_2->listId = 2;
+        $item2_2->save();
+        $item1_3 = new SortableItem1();
+        $item1_3->save();
+        $item2_3 = new SortableItem1();
+        $item2_3->listId = 2;
+        $item2_3->save();
+
+        $this->assertTrue($item1_1->position < $item1_2->position);
+        $this->assertTrue($item1_2->position < $item1_3->position);
+        $this->assertTrue($item2_1->position < $item2_2->position);
+        $this->assertTrue($item2_2->position < $item2_3->position);
+
+        $item1_1->moveAfter($item1_2);
+        $item1_1->refresh();
+        $item1_2->refresh();
+        $item1_3->refresh();
+        $item2_1->refresh();
+        $item2_2->refresh();
+        $item2_3->refresh();
+        $this->assertTrue($item1_2->position < $item1_1->position);
+        $this->assertTrue($item1_1->position < $item1_3->position);
+        $this->assertTrue($item2_1->position < $item2_2->position);
+        $this->assertTrue($item2_2->position < $item2_3->position);
+        
+        $item1_3->moveAfter($item1_2);
+        $item1_1->refresh();
+        $item1_2->refresh();
+        $item1_3->refresh();
+        $item2_1->refresh();
+        $item2_2->refresh();
+        $item2_3->refresh();
+        $this->assertTrue($item1_2->position < $item1_3->position);
+        $this->assertTrue($item1_3->position < $item1_1->position);
+        $this->assertTrue($item2_1->position < $item2_2->position);
+        $this->assertTrue($item2_2->position < $item2_3->position);
     }
 }
 
