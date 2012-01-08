@@ -122,6 +122,42 @@ class Doctrine_Template_Sortable extends Doctrine_Template
         $this->moveToTopOrBottom('>', 'ASC');
     }
 
+    public function moveAfter(Doctrine_Record $record2)
+    {
+        $record1 = $this->getInvoker();
+        $name = $this->getName();
+
+        foreach ($this->_options['manyListsBy'] as $col) {
+            if ($record1->$col != $record2->$col) {
+                throw new Doctrine_Record_Exception('Cannot moveAfter item from different list.');
+            }
+        }
+
+        $conn = $this->getTable()->getConnection();
+        $conn->beginTransaction();
+
+        $oldPos = $record1->$name;
+        $newPos = $record2->$name;
+
+        $q = $this->getTable()->createQuery()
+            ->update()
+            ->set("$name", "$name - 1")
+            ->addWhere("$name <= ?", $newPos);
+        foreach ($this->_options['manyListsBy'] as $col) {
+            if (is_null($this->getInvoker()->$col)) {
+                $q->addWhere($col . ' IS NULL');
+            } else {
+                $q->addWhere($col . ' = ?', $this->getInvoker()->$col);
+            }
+        }
+        $q->execute();
+
+        $record1->$name = $newPos;
+        $record1->save($conn);
+        
+        $conn->commit();
+    }
+
     public function findFirstTableProxy($whichList = array())
     {
         return $this->findFirstOrLast($whichList, 'ASC');
