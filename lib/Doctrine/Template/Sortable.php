@@ -84,17 +84,31 @@ class Doctrine_Template_Sortable extends Doctrine_Template
 
     public function moveUp()
     {
+        $name = $this->getName();
+
         $prev = $this->getInvoker()->getPrevious();
         if ($prev) {
             $this->getInvoker()->swapWith($prev);
+        }
+        else
+        {
+            $this->getInvoker()->$name = 0;
+            $this->getInvoker()->save();
         }
     }
 
     public function moveDown()
     {
+        $name = $this->getName();
+
         $next = $this->getInvoker()->getNext();
         if ($next) {
             $this->getInvoker()->swapWith($next);
+        }
+        else
+        {
+            $this->getInvoker()->$name = $this->getInvoker()->get($name, true) + 1;
+            $this->getInvoker()->save();
         }
     }
 
